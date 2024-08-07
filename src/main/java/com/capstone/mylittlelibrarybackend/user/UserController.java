@@ -1,38 +1,24 @@
 package com.capstone.mylittlelibrarybackend.user;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(path="/api/users")
+@RequestMapping("/api")
 public class UserController {
 
-    private final UserService userService;
-
     @Autowired
-    public UserController(UserService userService) {
-        this.userService = userService;
+    private UserService userService;
+
+    @GetMapping("/users")
+    public User getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        return userService.getUserByEmail(email);
     }
 
-    @GetMapping
-    public List<User> getUsers() {
-        return userService.getUsers();
-    }
 
-    @PostMapping
-    public void registerUser(@RequestBody User user) {
-        userService.addNewUser(user);
-    }
-
-    @PutMapping(path = "/{userId}")
-    public void updateBook(@PathVariable("userId") Long bookId, @RequestBody User user) {
-        userService.updateUser(bookId, user);
-    }
-
-    @DeleteMapping(path = "/{userId}")
-    public void deleteUser(@PathVariable("userId") Long userId) {
-        userService.deleteUser(userId);
-    }
 }

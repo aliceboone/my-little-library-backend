@@ -1,26 +1,45 @@
 package com.capstone.mylittlelibrarybackend.config;
 
+import com.capstone.mylittlelibrarybackend.user.CustomOAuth2UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
-
 import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
+    private final CustomOAuth2UserService customOAuth2UserService;
+
+    public SecurityConfig(CustomOAuth2UserService customOAuth2UserService) {
+        this.customOAuth2UserService = customOAuth2UserService;
+    }
+
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http
-                .authorizeHttpRequests(auth ->{
-                    auth.requestMatchers("/").permitAll();
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .authorizeHttpRequests(auth -> {
+                    auth.requestMatchers("/api/books/**").authenticated();
+                    auth.requestMatchers("/api/users/**").authenticated();
+                    auth.requestMatchers("/", "/login", "/api/auth/**", "/error").permitAll(); // Public endpoints
                     auth.anyRequest().authenticated();
                 })
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers("/api/**") // Disable CSRF for API endpoints
+                )
                 .formLogin(withDefaults())
-                .oauth2Login(withDefaults())
-                .build();
+                .oauth2Login(oauth2 -> oauth2
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .userService(customOAuth2UserService) // Custom service to process user info
+                        )
+                )
+                .logout(logout -> logout
+                        .logoutSuccessUrl("/login?logout=true") // Custom logout URL
+                );
+
+        return http.build();
     }
 }

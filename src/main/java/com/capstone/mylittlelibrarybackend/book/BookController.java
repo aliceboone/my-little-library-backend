@@ -4,6 +4,7 @@ import com.capstone.mylittlelibrarybackend.imageupload.UploadImage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,16 +25,19 @@ public class BookController {
     }
 
     @GetMapping
+    @PreAuthorize("isAuthenticated()")
     public List<Book> getBooks() {
         return bookService.getBooks();
     }
 
     @GetMapping(path = "/{bookId}")
+    @PreAuthorize("isAuthenticated()")
     public Book getBookById(@PathVariable("bookId") Long bookId) {
         return bookService.getBookById(bookId);
     }
 
     @GetMapping(path = "/search")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<Book>> searchBooks(
             @RequestParam(value = "title", defaultValue = "") String title,
             @RequestParam(value = "author", defaultValue = "") String author,
@@ -45,6 +49,7 @@ public class BookController {
     }
 
     @PostMapping
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<String> addNewBook(@RequestParam("title") String title,
                                              @RequestParam("author") String author,
                                              @RequestParam("genre") String genre,
@@ -73,8 +78,8 @@ public class BookController {
         }
     }
 
-
     @PutMapping(path = "/{bookId}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<String> updateBook(@PathVariable("bookId") Long bookId,
                                              @RequestParam("title") String title,
                                              @RequestParam("author") String author,
@@ -101,23 +106,21 @@ public class BookController {
 
             return ResponseEntity.ok("Book successfully updated");
         } catch (IOException e) {
-            // Handle exceptions related to image upload
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Failed to upload image: " + e.getMessage());
         } catch (Exception e) {
-            // Handle other potential exceptions
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Failed to update book: " + e.getMessage());
         }
     }
 
     @DeleteMapping(path = "/{bookId}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<String> deleteBook(@PathVariable("bookId") Long bookId) {
         try {
             bookService.deleteBook(bookId);
             return ResponseEntity.ok("Book successfully deleted");
         } catch (Exception e) {
-            // Handle exceptions related to book deletion
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Failed to delete book: " + e.getMessage());
         }

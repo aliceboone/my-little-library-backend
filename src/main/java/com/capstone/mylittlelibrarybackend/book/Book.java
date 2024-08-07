@@ -1,5 +1,6 @@
 package com.capstone.mylittlelibrarybackend.book;
 
+import com.capstone.mylittlelibrarybackend.user.User;
 import jakarta.persistence.*;
 
 @Entity
@@ -17,7 +18,6 @@ public class Book {
             generator = "book_sequence"
     )
     private Long id;
-
     private String title;
     private String author;
     private String genre;
@@ -26,11 +26,15 @@ public class Book {
     private String language;
     private String image;
 
-    // Constructors, getters, and setters
+    @ManyToOne
+    @JoinColumn(name="user_id", nullable = false)
+    private User user;
 
+    // Default constructor
     public Book() {
     }
 
+    // Constructor with all fields except ID and User
     public Book(String title, String author, String genre, String publishedYear, String description, String language, String image) {
         this.title = title;
         this.author = author;
@@ -39,6 +43,18 @@ public class Book {
         this.description = description;
         this.language = language;
         this.image = image;
+    }
+
+    // Constructor with all fields including User
+    public Book(String title, String author, String genre, String publishedYear, String description, String language, String image, User user) {
+        this.title = title;
+        this.author = author;
+        this.genre = genre;
+        this.publishedYear = publishedYear;
+        this.description = description;
+        this.language = language;
+        this.image = image;
+        this.user = user;
     }
 
     // Getters and setters
@@ -106,6 +122,14 @@ public class Book {
         this.image = image;
     }
 
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
     @Override
     public String toString() {
         return "Book{" +
@@ -117,6 +141,7 @@ public class Book {
                 ", description='" + description + '\'' +
                 ", language='" + language + '\'' +
                 ", image='" + image + '\'' +
+                ", user=" + user +
                 '}';
     }
 }
