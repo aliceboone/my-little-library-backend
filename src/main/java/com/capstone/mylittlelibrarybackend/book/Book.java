@@ -17,11 +17,11 @@ public class Book {
             generator = "book_sequence"
     )
     private Long id;
-
     private String title;
     private String author;
     private String genre;
     private String publishedYear;
+    @Lob
     private String description;
     private String language;
     private String image;
