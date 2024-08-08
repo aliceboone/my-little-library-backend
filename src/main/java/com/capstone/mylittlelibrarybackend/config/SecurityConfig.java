@@ -6,6 +6,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+
 import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
@@ -24,7 +26,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> {
                     auth.requestMatchers("/api/books/**").authenticated();
                     auth.requestMatchers("/api/users/**").authenticated();
-                    auth.requestMatchers("/", "/login", "/api/auth/**", "/error").permitAll(); // Public endpoints
+                    auth.requestMatchers("/", "/login", "/error").permitAll(); // Public endpoints
                     auth.anyRequest().authenticated();
                 })
                 .csrf(csrf -> csrf
@@ -35,11 +37,17 @@ public class SecurityConfig {
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(customOAuth2UserService) // Custom service to process user info
                         )
+                        .successHandler(authenticationSuccessHandler()) // Set the custom success handler
                 )
                 .logout(logout -> logout
                         .logoutSuccessUrl("/login?logout=true") // Custom logout URL
                 );
 
         return http.build();
+    }
+
+    @Bean
+    public AuthenticationSuccessHandler authenticationSuccessHandler() {
+        return new CustomAuthenticationSuccessHandler();
     }
 }

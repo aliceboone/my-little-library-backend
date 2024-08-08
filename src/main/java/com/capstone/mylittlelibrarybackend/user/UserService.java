@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class UserService {
+
     private final UserRepository userRepository;
 
     @Autowired
@@ -13,7 +14,7 @@ public class UserService {
     }
 
     public User getUserByEmail(String email) {
-        return userRepository.findByEmail(email);
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
     }
 }
-
