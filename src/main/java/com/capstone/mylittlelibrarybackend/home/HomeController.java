@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class HomeController {
 
-    @GetMapping("api/login")
+    @GetMapping("/login")
     public String login() {
-        return "Login to your Library!";
+        return "Welcome to login page!";
     }
 }
